@@ -2,7 +2,8 @@
 # See https://github.com/svenfuchs/rails-i18n/tree/master/rails%2Flocale for starting points.
 
 en:
-  promotion_action_types:
+  spree:
+    promotion_action_types:
       discount_by_product:
-        description: Creates a promotion credit adjustment on the order by product
-        name: Create adjustment by products
+        description: "Creates an adjustment on the order by product"
+        name: "Create adjustment by products"
