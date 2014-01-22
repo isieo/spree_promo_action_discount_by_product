@@ -40,7 +40,7 @@ module Spree
             #variant_price = promotion_action_product_discounts.where(variant: line_item.variant.product.id).first
             total += product_discount.last.discount * line_item.quantity
           end
-          total
+          -total
         end
 
         private
