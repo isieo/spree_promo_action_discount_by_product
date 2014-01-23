@@ -47,16 +47,16 @@ module Spree
           -total
         end
 
+        # Receives an adjustment +source+ (here a PromotionAction object) and tells
+        # if the order has adjustments from that already
+        def promotion_credit_exists?(adjustable)
+          self.adjustments.where(:adjustable_id => adjustable.id).exists?
+        end
+
         private
           # Tells us if there if the specified promotion is already associated with the line item
           # regardless of whether or not its currently eligible. Useful because generally
           # you would only want a promotion action to apply to line item no more than once.
-
-          # Receives an adjustment +source+ (here a PromotionAction object) and tells
-          # if the order has adjustments from that already
-          def promotion_credit_exists?(adjustable)
-            self.adjustments.where(:adjustable_id => adjustable.id).exists?
-          end
 
           def ensure_action_is_product
             promotion_action_product_discounts.each do |p|
