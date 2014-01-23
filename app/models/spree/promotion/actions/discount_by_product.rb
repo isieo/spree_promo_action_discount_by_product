@@ -2,6 +2,7 @@ module Spree
   class Promotion
     module Actions
       class DiscountByProduct < PromotionAction
+        include Spree::Core::CalculatedAdjustments
         has_many :promotion_action_product_discounts, foreign_key: :promotion_action_id
         accepts_nested_attributes_for :promotion_action_product_discounts
         has_many :adjustments, as: :source
@@ -13,6 +14,8 @@ module Spree
 
         def perform(payload = {})
           order = payload[:order]
+          return unless self.eligible? order
+
           # Find only the line items which have not already been adjusted by this promotion
           # HACK: Need to use [0] because `pluck` may return an empty array, which AR helpfully
           # coverts to meaning NOT IN (NULL) and the DB isn't happy about that.
@@ -24,11 +27,13 @@ module Spree
           return true if amount == 0
 
           a = order.adjustments.find_or_initialize_by(source: self)
+          a.originator = self
           a.amount= amount
           a.label= "#{Spree.t(:promotion)} (#{promotion.name})"
           a.save
           true
         end
+
 
         # Ensure a negative amount which does not exceed the sum of the order's
         # item_total and ship_total
