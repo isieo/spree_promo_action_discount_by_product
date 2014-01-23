@@ -26,8 +26,7 @@ module Spree
         def process_adjustment(amount,order)
           return true if amount == 0
 
-          a = order.adjustments.find_or_initialize_by(source: self)
-          a.originator = self
+          a = order.adjustments.find_or_initialize_by(source: self,originator: self)
           a.amount= amount
           a.label= "#{Spree.t(:promotion)} (#{promotion.name})"
           a.save
@@ -52,7 +51,12 @@ module Spree
           # Tells us if there if the specified promotion is already associated with the line item
           # regardless of whether or not its currently eligible. Useful because generally
           # you would only want a promotion action to apply to line item no more than once.
-          #
+
+          # Receives an adjustment +source+ (here a PromotionAction object) and tells
+          # if the order has adjustments from that already
+          def promotion_credit_exists?(adjustable)
+            self.adjustments.where(:adjustable_id => adjustable.id).exists?
+          end
 
           def ensure_action_is_product
             promotion_action_product_discounts.each do |p|
