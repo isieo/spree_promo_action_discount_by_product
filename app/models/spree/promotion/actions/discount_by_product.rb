@@ -2,7 +2,7 @@ module Spree
   class Promotion
     module Actions
       class DiscountByProduct < PromotionAction
-        include Spree::Core::CalculatedAdjustments
+      #  include Spree::Core::CalculatedAdjustments
         has_many :promotion_action_product_discounts, foreign_key: :promotion_action_id
         accepts_nested_attributes_for :promotion_action_product_discounts
         has_many :adjustments, as: :source
@@ -26,11 +26,18 @@ module Spree
         def process_adjustment(amount,order)
           return true if amount == 0
 
-          a = order.adjustments.find_or_initialize_by(source: self,originator: self)
+          a = order.adjustments.find_or_initialize_by(source: order,originator: self)
           a.amount= amount
           a.label= "#{Spree.t(:promotion)} (#{promotion.name})"
           a.save
           true
+        end
+
+        def update_adjustment(adjustment,calculable)
+          total = calculate_amount calculable
+          a = adjustment
+          a.amount= total
+          a.save
         end
 
 
@@ -51,6 +58,7 @@ module Spree
         # NOTE: May be overriden by classes where this module is included into.
         # Such as Spree::Promotion::Action::CreateAdjustment.
         def compute_amount(calculable)
+raise          calculable.order.inspect
         end
 
         # Receives an adjustment +source+ (here a PromotionAction object) and tells
