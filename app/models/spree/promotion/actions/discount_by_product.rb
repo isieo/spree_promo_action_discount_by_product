@@ -2,7 +2,7 @@ module Spree
   class Promotion
     module Actions
       class DiscountByProduct < PromotionAction
-      #  include Spree::Core::CalculatedAdjustments
+        include Spree::Core::CalculatedAdjustments
         has_many :promotion_action_product_discounts, foreign_key: :promotion_action_id
         accepts_nested_attributes_for :promotion_action_product_discounts
         has_many :adjustments, as: :source
@@ -19,7 +19,7 @@ module Spree
           # Find only the line items which have not already been adjusted by this promotion
           # HACK: Need to use [0] because `pluck` may return an empty array, which AR helpfully
           # coverts to meaning NOT IN (NULL) and the DB isn't happy about that.
-          total = calculate_amount order
+          total = compute_amount order
           self.process_adjustment(total,order)
         end
 
@@ -33,17 +33,9 @@ module Spree
           true
         end
 
-        def update_adjustment(adjustment,calculable)
-          total = calculate_amount calculable
-          a = adjustment
-          a.amount= total
-          a.save
-        end
-
-
         # Ensure a negative amount which does not exceed the sum of the order's
         # item_total and ship_total
-        def calculate_amount(order)
+        def compute_amount(order)
           total = 0
           order.line_items.find_each do |line_item|
             product_discount = promotion_action_product_discounts.where(product_id: line_item.variant.product.id)
@@ -52,13 +44,6 @@ module Spree
             total += product_discount.last.discount * line_item.quantity
           end
           -total
-        end
-
-        # Calculate the amount to be used when creating an adjustment
-        # NOTE: May be overriden by classes where this module is included into.
-        # Such as Spree::Promotion::Action::CreateAdjustment.
-        def compute_amount(calculable)
-raise          calculable.order.inspect
         end
 
         # Receives an adjustment +source+ (here a PromotionAction object) and tells
