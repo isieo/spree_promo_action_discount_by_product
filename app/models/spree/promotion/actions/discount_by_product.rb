@@ -19,7 +19,7 @@ module Spree
           # Find only the line items which have not already been adjusted by this promotion
           # HACK: Need to use [0] because `pluck` may return an empty array, which AR helpfully
           # coverts to meaning NOT IN (NULL) and the DB isn't happy about that.
-          total = compute_amount order
+          total = calculate_amount order
           self.process_adjustment(total,order)
         end
 
@@ -36,7 +36,7 @@ module Spree
 
         # Ensure a negative amount which does not exceed the sum of the order's
         # item_total and ship_total
-        def compute_amount(order)
+        def calculate_amount(order)
           total = 0
           order.line_items.find_each do |line_item|
             product_discount = promotion_action_product_discounts.where(product_id: line_item.variant.product.id)
@@ -45,6 +45,12 @@ module Spree
             total += product_discount.last.discount * line_item.quantity
           end
           -total
+        end
+
+        # Calculate the amount to be used when creating an adjustment
+        # NOTE: May be overriden by classes where this module is included into.
+        # Such as Spree::Promotion::Action::CreateAdjustment.
+        def compute_amount(calculable)
         end
 
         # Receives an adjustment +source+ (here a PromotionAction object) and tells
