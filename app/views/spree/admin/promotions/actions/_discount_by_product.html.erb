@@ -3,21 +3,21 @@
 
 <% if !discounts.empty? %>
     <% discounts.each do |item| %>
-   <%next if item.product_id.nil?%>
-   <strong><%=item.discount.to_money%> Discount for <%= item.product.name %></strong>
-    <%= item.product.master.options_text %>
+   <%next if item.variant_id.nil?%>
+   <strong><%=item.discount.to_money%> Discount for <%= item.variant.product.name %> sku:<%= item.variant.sku%></strong>
+    <%= item.variant.product.master.options_text %>
     <hr />
   <% end %>
 <% end %>
 
-<% discounts.build if discounts.reload.where(product_id: nil).size == 0 %>
+<% discounts.build if discounts.reload.where(variant_id: nil).size == 0 %>
 <% discounts.each_with_index do |line_item, index| %>
-  <%next if !line_item.new_record? && !line_item.product_id.nil?%>
+  <%next if !line_item.new_record? && !line_item.variant_id.nil?%>
   <div class="add-line-item row">
       <div class="field alpha four columns">
         <% line_item_prefix = "#{param_prefix}[promotion_action_product_discounts_attributes][#{index}]" %>
         <%= label_tag "#{line_item_prefix}[variant_id]", "Choose Products" %>
-        <%= hidden_field_tag "#{line_item_prefix}[variant_id]", line_item.product_id, :class => "variant_autocomplete fullwidth" %>
+        <%= hidden_field_tag "#{line_item_prefix}[variant_id]", line_item.variant_id, :class => "variant_autocomplete fullwidth" %>
 
       </div>
       <div class="settings field omega four columns">

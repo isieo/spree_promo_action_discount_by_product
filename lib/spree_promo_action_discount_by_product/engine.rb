@@ -17,7 +17,7 @@ module SpreePromoActionDiscountByProduct
       end
     end
 
-    initializer 'spree.promo.register.promotions.rules.taxon', after: 'spree.promo.register.promotions.actions' do |app|
+    initializer 'spree.promo.register.promotions.action.discount_by_product', after: 'spree.promo.register.promotions.actions' do |app|
       app.config.spree.promotions.actions += [Spree::Promotion::Actions::DiscountByProduct]
     end
 

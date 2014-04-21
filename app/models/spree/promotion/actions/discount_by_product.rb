@@ -5,8 +5,8 @@ module Spree
         include Spree::Core::CalculatedAdjustments
         has_many :promotion_action_product_discounts, foreign_key: :promotion_action_id
         accepts_nested_attributes_for :promotion_action_product_discounts
-        has_many :adjustments, as: :source
-
+        has_many :adjustments, as: :originator
+        before_validation :ensure_action_has_calculator
         delegate :eligible?, to: :promotion
 
         validate :ensure_action_is_product
@@ -38,9 +38,9 @@ module Spree
         def compute_amount(order)
           total = 0
           order.line_items.find_each do |line_item|
-            product_discount = promotion_action_product_discounts.where(product_id: line_item.variant.product.id)
+            product_discount = promotion_action_product_discounts.where(variant_id: line_item.variant.id)
             next if product_discount.empty?
-            #variant_price = promotion_action_product_discounts.where(variant: line_item.variant.product.id).first
+            #variant_price = promotion_action_product_discounts.where(variant: line_item.variant.id).first
             total += product_discount.last.discount * line_item.quantity
           end
           -total
@@ -65,6 +65,11 @@ module Spree
               end
             end
             false
+          end
+
+          def ensure_action_has_calculator
+            return if self.calculator
+            self.calculator = Calculator::FlatPercentItemTotal.new
           end
 
           def deals_with_adjustments

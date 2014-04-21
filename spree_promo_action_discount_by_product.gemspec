@@ -2,7 +2,7 @@
 Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.name        = 'spree_promo_action_discount_by_product'
-  s.version     = '2.1.1.8'
+  s.version     = '2.1.1.9'
   s.summary     = 'Discount by product'
   s.description = 'simple discount by product functionality'
   s.required_ruby_version = '>= 1.9.3'
